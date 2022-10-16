@@ -10,3 +10,4 @@ out/
 .vscode/
 compile_commands.json
 output.wav
+__pycache__
