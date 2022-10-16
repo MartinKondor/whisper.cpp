@@ -37,6 +37,8 @@ http://127.0.0.1:8080/?f=samples/jfk.wav
 
 http://127.0.0.1:8080/?f=samples/jfk.wav&return_stderr=1
 
+http://127.0.0.1:8080/pretty?f=samples/jfk.wav&return_stderr=0
+
 ------------------------------------------------
 
 # ORIGINAL REPOSITORY README:
