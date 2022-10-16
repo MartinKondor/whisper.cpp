@@ -1,7 +1,45 @@
-# whisper.cpp
+# whisper.cpp (api)
 
 [![Actions Status](https://github.com/ggerganov/whisper.cpp/workflows/CI/badge.svg)](https://github.com/ggerganov/whisper.cpp/actions)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+# API
+
+## Setup (run first and once)
+
+1. Build the project: `make`
+2. Download the language model for english: `bash ./download-ggml-model.sh base.en`
+3. Test it out: `./main samples/jfk.wav`
+4. Have `ffmpeg` and `curl` installed
+
+## To serve as an API
+
+1. Run `sh start_api.sh`
+2. In the browser go to http://127.0.0.1:8080/
+
+## Usage
+
+The basic usage:
+
+`http://127.0.0.1:8080/?f=<WAV_FILE_PATH>`
+
+For a more humanly readable format:
+
+`http://127.0.0.1:8080/pretty?f=<WAV_FILE_PATH>`
+
+If you want to get the error messages then use the `return_stderr` param, if it is `0` no error message will apear:
+
+`http://127.0.0.1:8080/pretty?f=<WAV_FILE_PATH>&return_stderr=<0 OR 1>`
+
+## Example usage
+
+http://127.0.0.1:8080/?f=samples/jfk.wav
+
+http://127.0.0.1:8080/?f=samples/jfk.wav&return_stderr=1
+
+------------------------------------------------
+
+# ORIGINAL REPOSITORY README:
 
 High-performance inference of [OpenAI's Whisper](https://github.com/openai/whisper) automatic speech recognition (ASR) model:
 
