@@ -131,19 +131,29 @@ def exec_command(
     }
 
 
-# http://127.0.0.1:8080/pretty?f=bin/samples/jfk.wav&return_stderr=1
-# http://127.0.0.1:8080/pretty?f=bin/samples/jfk.wav
 @app.get("/")
-def root(
+def root_route(
     f: str="",
-    return_stderr: Union[int, None]=0
+    return_stderr: int=0
 ) -> Dict:
     return exec_command(f, return_stderr)
 
 
+@app.get("/ls", response_class=PrettyJSONResponse)
+def ls_route(
+    lib: str=""
+) -> Dict:
+    ls = Popen([f"ls {lib}"], stdout=PIPE, stderr=PIPE, shell=True)
+    return {
+        "status": "ok",
+        "stdout": ls.stdout.read().decode("utf-8"),
+        "stderr": ls.stderr.read().decode("utf-8")
+    }
+
+
 @app.get("/pretty", response_class=PrettyJSONResponse)
-def pretty(
+def root_pretty_route(
     f: str="",
-    return_stderr: Union[int, None]=0
+    return_stderr: int=0
 ) -> Dict:
     return exec_command(f, return_stderr)

@@ -8,13 +8,16 @@
 ## Setup (run first and once)
 
 
-1. Clone this repository (see the `master` branch for the original python based version)
-   
-_TODO_
+1. Clone this repository (see the `opt` branch for the optimized version)
+2. Build the project: `make`
+3. Download the language model for english: `bash ./download-ggml-model.sh base.en`
+4. Test it out: `./main samples/jfk.wav`
+5. Have `ffmpeg` and `curl` installed
 
 ## To serve as an API
 
-_TODO_
+1. Run `sh start_api.sh`
+2. In the browser go to http://127.0.0.1:8080/
 
 ## Usage
 
@@ -30,13 +33,31 @@ If you want to get the error messages then use the `return_stderr` param, if it 
 
 `http://127.0.0.1:8080/pretty?f=<WAV_FILE_PATH>&return_stderr=<0 OR 1>`
 
-## Example usage
+## Example usages
 
-http://127.0.0.1:8080/?f=samples/jfk.wav
+### Jfk example
 
-http://127.0.0.1:8080/?f=samples/jfk.wav&return_stderr=1
+Running:
+```bash
+curl "http://127.0.0.1:8080/?f=samples/jfk.wav"
+```
 
-http://127.0.0.1:8080/pretty?f=samples/jfk.wav&return_stderr=0
+Result:
+```js
+{
+    "status": "ok", 
+    "stdout": "[00:00.000 --> 00:11.000]   And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.\n\n"
+}
+```
+
+### Other examples
+
+```bash
+curl "http://127.0.0.1:8080/?f=samples/jfk.wav&return_stderr=1"`
+```
+```bash
+curl "http://127.0.0.1:8080/pretty?f=samples/jfk.wav&return_stderr=0"
+```
 
 ------------------------------------------------
 
