@@ -45,8 +45,11 @@ curl "http://127.0.0.1:8080/?f=samples/jfk.wav"
 Result:
 ```js
 {
-    "status": "ok", 
-    "stdout": "[00:00.000 --> 00:11.000]   And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.\n\n"
+    "status": 1, 
+    "output": [
+        "[00:00.000 --> 00:11.000]   And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+    ], 
+    "runtime": 1.1240870952606201
 }
 ```
 
