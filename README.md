@@ -7,10 +7,12 @@
 
 ## Setup (run first and once)
 
-1. Build the project: `make`
-2. Download the language model for english: `bash ./download-ggml-model.sh base.en`
-3. Test it out: `./main samples/jfk.wav`
-4. Have `ffmpeg` and `curl` installed
+
+1. Clone this repository (see the `opt` branch for the optimized version)
+2. Build the project: `make`
+3. Download the language model for english: `bash ./download-ggml-model.sh base.en`
+4. Test it out: `./main samples/jfk.wav`
+5. Have `ffmpeg` and `curl` installed
 
 ## To serve as an API
 
