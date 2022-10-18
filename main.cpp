@@ -10,7 +10,6 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include <chrono>
 
 
 //  500 -> 00:05.000
@@ -23,7 +22,7 @@ std::string to_timestamp(int64_t t) {
     msec = msec - min * (1000 * 60);
     int64_t sec = msec / 1000;
     msec = msec - sec * 1000;
-    
+
     char buf[32];
     snprintf(buf, sizeof(buf), "%02d:%02d:%02d.%03d", (int) hr, (int) min, (int) sec, (int) msec);
 
@@ -128,9 +127,6 @@ void whisper_print_usage(int argc, char ** argv, const whisper_params & params) 
 }
 
 int main(int argc, char ** argv) {
-    auto start_time = std::chrono::high_resolution_clock::now();
-    ////////////////////////////////////////
-
     whisper_params params;
 
     if (whisper_params_parse(argc, argv, params) == false) {
@@ -198,26 +194,6 @@ int main(int argc, char ** argv) {
                 }
             }
         }
-
-        // print some info about the processing
-        {
-            fprintf(stderr, "\n");
-            if (!whisper_is_multilingual(ctx)) {
-                if (params.language != "en" || params.translate) {
-                    params.language = "en";
-                    params.translate = false;
-                    fprintf(stderr, "%s: WARNING: model is not multilingual, ignoring language and translation options\n", __func__);
-                }
-            }
-            fprintf(stderr, "%s: processing '%s' (%d samples, %.1f sec), %d threads, lang = %s, task = %s, timestamps = %d ...\n",
-                    __func__, fname_inp.c_str(), int(pcmf32.size()), float(pcmf32.size())/WHISPER_SAMPLE_RATE, params.n_threads,
-                    params.language.c_str(),
-                    params.translate ? "translate" : "transcribe",
-                    params.no_timestamps ? 0 : 1);
-
-            fprintf(stderr, "\n");
-        }
-
 
         // run the inference
         {
@@ -331,11 +307,5 @@ int main(int argc, char ** argv) {
 
     whisper_print_timings(ctx);
     whisper_free(ctx);
-
-
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto time = end_time - start_time;
-    printf("runtime = %lld\n", time/std::chrono::milliseconds(1));
-
     return 0;
 }

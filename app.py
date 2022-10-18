@@ -1,10 +1,9 @@
-from subprocess import PIPE, Popen
 from typing import Dict
 
 from fastapi import FastAPI
 
 from api.response import PrettyJSONResponse
-from api.terminal import run_whisper
+from api.terminal import run_whisper, run_process
 
 
 app = FastAPI()
@@ -30,7 +29,7 @@ def root_pretty_route(
 def ls_route(
     lib: str=""
 ) -> Dict:
-    ls = Popen([f"ls {lib}"], stdout=PIPE, stderr=PIPE, shell=True)
+    ls = run_process(f"ls {lib}")
     return {
         "status": "ok",
         "stdout": ls.stdout.read().decode("utf-8"),
