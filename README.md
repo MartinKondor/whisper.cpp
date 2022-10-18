@@ -7,39 +7,19 @@
 
 ## Setup (run first and once)
 
-
-1. Clone this repository (see the `opt` branch for the optimized version)
-2. Build the project: `make`
-3. Download the language model for english: `bash ./download-ggml-model.sh base.en`
-4. Test it out: `./main samples/jfk.wav`
-5. Have `ffmpeg` and `curl` installed
+_TODO_
 
 ## To serve as an API
 
-1. Run `sh start_api.sh`
-2. In the browser go to http://127.0.0.1:8080/
+_TODO_
 
 ## Usage
 
-The basic usage:
-
-`http://127.0.0.1:8080/?f=<WAV_FILE_PATH>`
-
-For a more humanly readable format:
-
-`http://127.0.0.1:8080/pretty?f=<WAV_FILE_PATH>`
-
-If you want to get the error messages then use the `return_stderr` param, if it is `0` no error message will apear:
-
-`http://127.0.0.1:8080/pretty?f=<WAV_FILE_PATH>&return_stderr=<0 OR 1>`
+_TODO_
 
 ## Example usage
 
-http://127.0.0.1:8080/?f=samples/jfk.wav
-
-http://127.0.0.1:8080/?f=samples/jfk.wav&return_stderr=1
-
-http://127.0.0.1:8080/pretty?f=samples/jfk.wav&return_stderr=0
+_TODO_
 
 ------------------------------------------------
 

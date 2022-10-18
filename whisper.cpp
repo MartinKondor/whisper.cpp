@@ -422,7 +422,9 @@ struct whisper_context {
 // see the convert-pt-to-ggml.py script for details
 //
 bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
+    #ifdef VERBOSE_MODE
     fprintf(stderr, "%s: loading model from '%s'\n", __func__, fname.c_str());
+    #endif
 
     auto & model = wctx.model;
     auto & vocab = wctx.vocab;
@@ -481,6 +483,7 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
             model.type = e_model::MODEL_LARGE;
         }
 
+        #ifdef VERBOSE_MODE
         fprintf(stderr, "%s: n_vocab       = %d\n", __func__, hparams.n_vocab);
         fprintf(stderr, "%s: n_audio_ctx   = %d\n", __func__, hparams.n_audio_ctx);
         fprintf(stderr, "%s: n_audio_state = %d\n", __func__, hparams.n_audio_state);
@@ -493,18 +496,20 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
         fprintf(stderr, "%s: n_mels        = %d\n", __func__, hparams.n_mels);
         fprintf(stderr, "%s: f16           = %d\n", __func__, hparams.f16);
         fprintf(stderr, "%s: type          = %d\n", __func__, model.type);
+        #endif
 
         wctx.buf_model.resize(MEM_REQ_MODEL.at(model.type));
         wctx.buf_compute.resize(std::max(MEM_REQ_ENCODE.at(model.type), MEM_REQ_DECODE.at(model.type)));
         wctx.buf_compute_layer.resize(std::max(MEM_REQ_ENCODE_LAYER.at(model.type), MEM_REQ_DECODE_LAYER.at(model.type)));
 
+        #ifdef VERBOSE_MODE
         // this is the total memory required to run the inference
         const size_t mem_required =
                    wctx.buf_model.size() +
                    wctx.buf_compute.size() +
                    wctx.buf_compute_layer.size();
-
         fprintf(stderr, "%s: mem_required  = %.2f MB\n", __func__, mem_required / 1024.0 / 1024.0);
+        #endif
     }
 
     // load mel filters
@@ -554,7 +559,9 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
         }
 
         if (n_vocab < model.hparams.n_vocab) {
+            #ifdef VERBOSE_MODE
             fprintf(stderr, "%s: adding %d extra tokens\n", __func__, model.hparams.n_vocab - n_vocab);
+            #endif
             for (int i = n_vocab; i < model.hparams.n_vocab; i++) {
                 if (i > vocab.token_beg) {
                     word = "[_TT_" + std::to_string(i - vocab.token_beg) + "]";
@@ -582,6 +589,7 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
     const ggml_type wtype = model.hparams.f16 ? GGML_TYPE_F16 : GGML_TYPE_F32;
 
 
+    #ifdef VERBOSE_MODE
     size_t ctx_size = 0;
 
     {
@@ -598,7 +606,6 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
         const int n_text_layer = hparams.n_text_layer;
 
         const int n_mels = hparams.n_mels;
-
         // encoder
         {
             // TODO: F16 .. maybe not?
@@ -701,6 +708,7 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
 
         fprintf(stderr, "%s: ggml ctx size = %6.2f MB\n", __func__, ctx_size/(1024.0*1024.0));
     }
+    #endif
 
     // create the ggml context
     {
@@ -942,17 +950,20 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
             model.memory_cross_v = ggml_new_tensor_1d(ctx, GGML_TYPE_F16, n_elements);
         }
 
+        #ifdef VERBOSE_MODE
         const size_t memory_size =
             ggml_nbytes(model.memory_k)       + ggml_nbytes(model.memory_v) +
             ggml_nbytes(model.memory_cross_k) + ggml_nbytes(model.memory_cross_v);
-
         fprintf(stderr, "%s: memory size = %8.2f MB \n", __func__, memory_size/1024.0/1024.0);
+        #endif
     }
 
     // load weights
     {
         int n_loaded = 0;
+        #ifdef VERBOSE_MODE
         size_t total_size = 0;
+        #endif
 
         while (true) {
             int32_t n_dims;
@@ -1005,11 +1016,15 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
             fin.read(reinterpret_cast<char *>(tensor->data), ggml_nbytes(tensor));
 
             //printf("%24s - [%5d, %5d], type = %6s, %6.2f MB\n", name.data(), ne[0], ne[1], ftype == 0 ? "float" : "f16", ggml_nbytes(tensor)/1024.0/1024.0);
+            #ifdef VERBOSE_MODE
             total_size += ggml_nbytes(tensor);
+            #endif
             n_loaded++;
         }
 
+        #ifdef VERBOSE_MODE
         fprintf(stderr, "%s: model size  = %8.2f MB\n", __func__, total_size/1024.0/1024.0);
+        #endif
 
         if (n_loaded == 0) {
             fprintf(stderr, "%s: WARN no tensors loaded from model file - assuming empty model for testing\n", __func__);
@@ -2245,12 +2260,14 @@ whisper_token whisper_token_transcribe() {
 void whisper_print_timings(struct whisper_context * ctx) {
     const int64_t t_end_us = ggml_time_us();
 
+    #ifdef VERBOSE_MODE
     fprintf(stderr, "\n");
     fprintf(stderr, "%s:     load time = %8.2f ms\n", __func__, ctx->t_load_us/1000.0f);
     fprintf(stderr, "%s:      mel time = %8.2f ms\n", __func__, ctx->t_mel_us/1000.0f);
     fprintf(stderr, "%s:   sample time = %8.2f ms\n", __func__, ctx->t_sample_us/1000.0f);
     fprintf(stderr, "%s:   encode time = %8.2f ms / %.2f ms per layer\n", __func__, ctx->t_encode_us/1000.0f, ctx->t_encode_us/1000.0f/ctx->model.hparams.n_audio_layer);
     fprintf(stderr, "%s:   decode time = %8.2f ms / %.2f ms per layer\n", __func__, ctx->t_decode_us/1000.0f, ctx->t_decode_us/1000.0f/ctx->model.hparams.n_text_layer);
+    #endif
     fprintf(stderr, "%s:    total time = %8.2f ms\n", __func__, (t_end_us - ctx->t_start_us)/1000.0f);
 }
 

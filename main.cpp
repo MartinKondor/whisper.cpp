@@ -11,6 +11,7 @@
 #include <thread>
 #include <vector>
 
+
 //  500 -> 00:05.000
 // 6000 -> 01:00.000
 std::string to_timestamp(int64_t t) {
@@ -195,6 +196,7 @@ int main(int argc, char ** argv) {
         }
 
         // print some info about the processing
+        #ifdef VERBOSE_MODE
         {
             fprintf(stderr, "\n");
             if (!whisper_is_multilingual(ctx)) {
@@ -212,7 +214,7 @@ int main(int argc, char ** argv) {
 
             fprintf(stderr, "\n");
         }
-
+        #endif
 
         // run the inference
         {
@@ -326,6 +328,5 @@ int main(int argc, char ** argv) {
 
     whisper_print_timings(ctx);
     whisper_free(ctx);
-
     return 0;
 }
