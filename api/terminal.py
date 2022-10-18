@@ -24,12 +24,8 @@ Downloads the inputed file from a web source with curl
 """
 def download_file(
     input_file_name: str,
-    output_file_name: str="download.wav",
-    verbose: bool=False
+    output_file_name: str="download.wav"
 ) -> str:
-    if verbose:
-        print("[*] download_file ...")
-
     output = run_process(f"curl -o {output_file_name} {input_file_name}")
     output.communicate()
     return output_file_name
@@ -41,12 +37,8 @@ which is supported by whisper
 """
 def convert_to_16bit(
     input_file_name: str,
-    output_file_name: str="output.wav",
-    verbose: bool=False
+    output_file_name: str="output.wav"
 ) -> str:
-    if verbose:
-        print("[*] convert_to_16bit ...")
-
     output = run_process(f"ffmpeg -y -i {input_file_name} -ar 16000 -ac 1 {output_file_name}")
     output.communicate()
     return output_file_name
@@ -66,28 +58,22 @@ def convert_to_16bit(
 """
 def run_whisper(
     input_file_name: str,
-    return_stderr: int=0,
-    verbose: bool=True
+    return_stderr: int=0
 ) -> Dict:
     start_time = time.time()
 
-    # Check input file
-    if not input_file_name:
-        return {
-            "status": 0,
-            "msg": "No input file provided"
-        }
-    
+    # Check input file    
     if not os.path.exists(input_file_name):
         return {
             "status": 0,
-            "msg": f"Input file not found {input_file_name}"
+            "msg": f"Input file \"{input_file_name}\" not found"
         }
 
     # Remove previous output
     if os.path.exists("output.wav"):
         os.remove("output.wav")
 
+    # TODO: better check
     if "://" in input_file_name:
         input_file_name = download_file(input_file_name)
         if not os.path.exists("download.wav"):
@@ -96,6 +82,7 @@ def run_whisper(
                 "msg": "curl error"
             }
 
+    # TODO: Check before conversion
     input_file_name = convert_to_16bit(input_file_name)
     if not os.path.exists(input_file_name):
         return {
@@ -104,9 +91,6 @@ def run_whisper(
         }
 
     # Startup whisper
-    if verbose:
-        print("[*] whisper ...")
-
     output = run_process(WHISPER_BIN + input_file_name)
     stdout = output.stdout.read().decode("utf-8")
     stderr = output.stderr.read().decode("utf-8")
