@@ -10,6 +10,8 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <chrono>
+
 
 //  500 -> 00:05.000
 // 6000 -> 01:00.000
@@ -126,6 +128,9 @@ void whisper_print_usage(int argc, char ** argv, const whisper_params & params) 
 }
 
 int main(int argc, char ** argv) {
+    auto start_time = std::chrono::high_resolution_clock::now();
+    ////////////////////////////////////////
+
     whisper_params params;
 
     if (whisper_params_parse(argc, argv, params) == false) {
@@ -326,6 +331,11 @@ int main(int argc, char ** argv) {
 
     whisper_print_timings(ctx);
     whisper_free(ctx);
+
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto time = end_time - start_time;
+    printf("runtime = %lld\n", time/std::chrono::milliseconds(1));
 
     return 0;
 }
