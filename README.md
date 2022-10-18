@@ -48,20 +48,21 @@ http://127.0.0.1:8080/pretty?f=samples/jfk.wav&return_stderr=0
 High-performance inference of [OpenAI's Whisper](https://github.com/openai/whisper) automatic speech recognition (ASR) model:
 
 - Plain C/C++ implementation without dependencies
-- ARM_NEON and AVX intrinsics support
+- Apple silicon first-class citizen - optimized via Arm Neon and Accelerate framework
+- AVX intrinsics support for x86 architectures
 - Mixed F16 / F32 precision
 - Low memory usage (Flash Attention + Flash Forward)
 - Zero memory allocations at runtime
 - Runs on the CPU
 - [C-style API](https://github.com/ggerganov/whisper.cpp/blob/master/whisper.h)
-- Supported platforms: Linux, Mac OS (Intel and Arm), Windows (MinGW), Raspberry Pi, Android
+- Supported platforms: Linux, Mac OS (Intel and Arm), Windows (MSVC and MinGW), Raspberry Pi, Android
 
 ## Usage
 
 To build the main program, run `make`. You can then transcribe a `.wav` file like this:
 
 ```bash
-$ ./main -f input.wav
+./main -f input.wav
 ```
 
 Before running the program, make sure to download one of the ggml Whisper models. For example:
@@ -258,10 +259,22 @@ The `stream` tool samples the audio every half a second and runs the transcripti
 More info is available in [issue #10](https://github.com/ggerganov/whisper.cpp/issues/10).
 
 ```java
-$ ./stream -m ./models/ggml-base.en.bin -t 8 --step 500 --length 5000
+./stream -m ./models/ggml-base.en.bin -t 8 --step 500 --length 5000
 ```
 
 https://user-images.githubusercontent.com/1991296/194935793-76afede7-cfa8-48d8-a80f-28ba83be7d09.mp4
+
+The `stream` tool depends on SDL2 library to capture audio from the microphone. You can build it like this:
+
+```bash
+# Install SDL2 on Linux
+sudo apt-get install libsdl2-dev
+
+# Install SDL2 on Mac OS
+brew install sdl2
+
+make stream
+```
 
 ## Implementation details
 
@@ -269,6 +282,10 @@ https://user-images.githubusercontent.com/1991296/194935793-76afede7-cfa8-48d8-a
 - The high-level C-style API is implemented in C++ ([whisper.h](whisper.h) / [whisper.cpp](whisper.cpp))
 - Simple usage is demonstrated in [main.cpp](main.cpp)
 - Sample real-time audio transcription from the microphone is demonstrated in [stream.cpp](stream.cpp)
+
+The tensor operators are optimized heavily for Apple silicon CPUs. Depending on the computation size, Arm Neon SIMD
+instrisics or CBLAS Accelerate framwork routines are used. The latter are especially effective for bigger sizes since
+the framwork utilizes the special-purpose AMX coprocessor available in modern Apple products.
 
 ## Limitations
 
@@ -280,11 +297,12 @@ https://user-images.githubusercontent.com/1991296/194935793-76afede7-cfa8-48d8-a
 
 | Model  | Disk   | Mem     |
 | ---    | ---    | ---     |
-| tiny   |  75 MB | ~240 MB |
-| base   | 142 MB | ~380 MB |
-| small  | 466 MB | ~970 MB |
-| medium | 1.5 GB | ~2.5 GB |
-| large  | 2.9 GB | ~4.6 GB |
+| tiny   |  75 MB | ~280 MB |
+| base   | 142 MB | ~430 MB |
+| small  | 466 MB | ~1.0 GB |
+| medium | 1.5 GB | ~2.6 GB |
+| large  | 2.9 GB | ~4.7 GB |
+
 
 ## ggml format
 

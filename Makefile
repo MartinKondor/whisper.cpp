@@ -8,6 +8,7 @@ UNAME_M := $(shell uname -m)
 
 CFLAGS   = -O3 -std=c11  
 CXXFLAGS = -O3 -std=c++11
+LDFLAGS  =
 
 CFLAGS   += -Wall -Wextra -Wno-unused-parameter -Wno-unused-function
 CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -Wno-unused-function
@@ -22,14 +23,26 @@ ifeq ($(UNAME_S),Darwin)
 	CFLAGS   += -pthread
 	CXXFLAGS += -pthread
 endif
+ifeq ($(UNAME_S),FreeBSD)
+	CFLAGS   += -pthread
+	CXXFLAGS += -pthread
+endif
 
 # Architecture specific
 # TODO: probably these flags need to be tweaked on some architectures
+#       feel free to update the Makefile for your architecture and send a pull request or issue
 ifeq ($(UNAME_M),x86_64)
 	CFLAGS += -mavx -mavx2 -mfma -mf16c
 endif
+ifeq ($(UNAME_M),amd64)
+	CFLAGS += -mavx -mavx2 -mfma -mf16c
+endif
 ifneq ($(filter arm%,$(UNAME_M)),)
-	# Mac M1
+	# Mac M1 - include Accelerate framework
+	ifeq ($(UNAME_S),Darwin)
+		CFLAGS  += -DGGML_USE_ACCELERATE
+		LDFLAGS += -framework Accelerate
+	endif
 endif
 ifneq ($(filter aarch64%,$(UNAME_M)),)
 endif
@@ -51,7 +64,7 @@ endif
 #
 
 main: main.cpp ggml.o whisper.o
-	$(CXX) $(CXXFLAGS) main.cpp whisper.o ggml.o -o main
+	$(CXX) $(CXXFLAGS) main.cpp whisper.o ggml.o -o main $(LDFLAGS)
 	./main -h
 
 ggml.o: ggml.c ggml.h
@@ -73,7 +86,7 @@ clean:
 CC_SDL=`sdl2-config --cflags --libs`
 
 stream: stream.cpp ggml.o whisper.o
-	$(CXX) $(CXXFLAGS) stream.cpp ggml.o whisper.o -o stream $(CC_SDL)
+	$(CXX) $(CXXFLAGS) stream.cpp ggml.o whisper.o -o stream $(CC_SDL) $(LDFLAGS)
 
 #
 # Audio samples

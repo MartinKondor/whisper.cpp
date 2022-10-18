@@ -15,7 +15,7 @@
 #include <vector>
 
 #define USE_FLASH_ATTN
-#define USE_FLASH_FF
+//#define USE_FLASH_FF
 
 // available whisper models
 enum e_model {
@@ -148,19 +148,19 @@ static const std::map<e_model, size_t> MEM_REQ_ENCODE = {
 };
 
 static const std::map<e_model, size_t> MEM_REQ_ENCODE_LAYER = {
-    { MODEL_TINY,     64ull*MB },
-    { MODEL_BASE,     84ull*MB },
-    { MODEL_SMALL,   128ull*MB },
-    { MODEL_MEDIUM,  172ull*MB },
-    { MODEL_LARGE,   216ull*MB },
+    { MODEL_TINY,    104ull*MB },
+    { MODEL_BASE,    138ull*MB },
+    { MODEL_SMALL,   208ull*MB },
+    { MODEL_MEDIUM,  280ull*MB },
+    { MODEL_LARGE,   354ull*MB },
 };
 
 static const std::map<e_model, size_t> MEM_REQ_DECODE = {
-    { MODEL_TINY,     94ull*MB },
-    { MODEL_BASE,     96ull*MB },
-    { MODEL_SMALL,    98ull*MB },
-    { MODEL_MEDIUM,  100ull*MB },
-    { MODEL_LARGE,   102ull*MB },
+    { MODEL_TINY,    200ull*MB },
+    { MODEL_BASE,    202ull*MB },
+    { MODEL_SMALL,   204ull*MB },
+    { MODEL_MEDIUM,  206ull*MB },
+    { MODEL_LARGE,   208ull*MB },
 };
 
 static const std::map<e_model, size_t> MEM_REQ_DECODE_LAYER = {
@@ -2314,6 +2314,12 @@ int whisper_full(
         struct whisper_full_params params,
         const float * samples,
         int n_samples) {
+    // clear old results
+    auto & result_all = ctx->result_all;
+    auto & result_cur = ctx->result_cur;
+
+    result_all.clear();
+
     // compute log mel spectrogram
     if (whisper_pcm_to_mel(ctx, samples, n_samples, params.n_threads) != 0) {
         fprintf(stderr, "%s: failed to compute log mel spectrogram\n", __func__);
@@ -2343,11 +2349,6 @@ int whisper_full(
             prompt_init.push_back(whisper_token_transcribe());
         }
     }
-
-    auto & result_all = ctx->result_all;
-    auto & result_cur = ctx->result_cur;
-
-    result_all.clear();
 
     int progress_prev = 0;
     int progress_step = 5;
@@ -2444,7 +2445,12 @@ int whisper_full(
                 // end of text token
                 if (id == whisper_token_eot(ctx)) {
                     if (result_len == 0) {
-                        result_len = i + 1;
+                        if (seek + seek_delta + 100 >= whisper_n_len(ctx)) {
+                            result_len = i + 1;
+                        } else {
+                            // TODO: figure out how to resolve this
+                            fprintf(stderr, "\n%s: failed to generate timestamp token - this should not happen\n\n", __func__);
+                        }
                     }
                     break;
                 }

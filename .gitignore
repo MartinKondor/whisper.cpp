@@ -5,9 +5,11 @@ stream
 *.o
 .cache
 build/
+build-em/
 out/
 .vs/
 .vscode/
 compile_commands.json
+.DS_Store
 output.wav
 __pycache__
