@@ -8,7 +8,7 @@ UNAME_M := $(shell uname -m)
 
 CFLAGS   = -O3 -std=c11  
 CXXFLAGS = -O3 -std=c++11
-LDFLAGS  =
+LDFLAGS  = -I include
 
 CFLAGS   += -Wall -Wextra -Wno-unused-parameter -Wno-unused-function
 CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -Wno-unused-function

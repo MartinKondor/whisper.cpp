@@ -144,7 +144,6 @@ int main(int argc, char ** argv) {
     }
 
     // whisper init
-
     struct whisper_context * ctx = whisper_init(params.model.c_str());
 
     for (int f = 0; f < (int) params.fname_inp.size(); ++f) {
@@ -154,32 +153,20 @@ int main(int argc, char ** argv) {
         std::vector<float> pcmf32;
         {
             drwav wav;
-            if (!drwav_init_file(&wav, fname_inp.c_str(), NULL)) {
-                fprintf(stderr, "%s: failed to open WAV file '%s' - check your input\n", argv[0], fname_inp.c_str());
-                whisper_print_usage(argc, argv, {});
-                return 3;
-            }
-
-            if (wav.channels != 1 && wav.channels != 2) {
-                fprintf(stderr, "%s: WAV file '%s' must be mono or stereo\n", argv[0], fname_inp.c_str());
-                return 4;
-            }
-
-            if (wav.sampleRate != WHISPER_SAMPLE_RATE) {
-                fprintf(stderr, "%s: WAV file '%s' must be 16 kHz\nAttempting auto conversion with ffmpeg...\n", argv[0], fname_inp.c_str());
-                
+            if (!drwav_init_file(&wav, fname_inp.c_str(), NULL) || wav.sampleRate != WHISPER_SAMPLE_RATE || wav.bitsPerSample != 16) {
                 char ffmpeg_args[120];
                 std::string ffmpeg_output_file_name = "output.wav";
                 sprintf(ffmpeg_args, "ffmpeg -loglevel panic -y -i %s -ar 16000 -ac 1 %s", fname_inp.c_str(), ffmpeg_output_file_name.c_str());
                 system(ffmpeg_args);
                 fname_inp = ffmpeg_output_file_name;
-        
-                //return 5;
+
+                // Set file again
+                drwav_init_file(&wav, fname_inp.c_str(), NULL);
             }
 
-            if (wav.bitsPerSample != 16) {
-                fprintf(stderr, "%s: WAV file '%s' must be 16-bit\n", argv[0], fname_inp.c_str());
-                return 6;
+            if (wav.channels != 1 && wav.channels != 2) {
+                fprintf(stderr, "%s: WAV file '%s' must be mono or stereo\n", argv[0], fname_inp.c_str());
+                return 4;
             }
 
             int n = wav.totalPCMFrameCount;
@@ -313,10 +300,7 @@ int main(int argc, char ** argv) {
     }
 
     
-    if (params.verbose) {
-        whisper_print_timings(ctx);
-    }
-    
+    whisper_print_timings(ctx);
     whisper_free(ctx);
     return 0;
 }

@@ -1,4 +1,4 @@
 # samples
 
 **jfk.wav** - Source: [https://github.com/ggerganov/whisper.cpp](https://github.com/ggerganov/whisper.cpp).
-**tinb.wav** - Source: [https://freesound.org/people/metrostock99/sounds/514703/](https://freesound.org/people/metrostock99/sounds/514703/)
+**so-uh.ogg** - Source: [https://freesound.org/people/Nickleus/sounds/220675/](https://freesound.org/people/Nickleus/sounds/220675/)

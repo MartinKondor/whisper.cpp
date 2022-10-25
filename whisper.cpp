@@ -422,10 +422,6 @@ struct whisper_context {
 // see the convert-pt-to-ggml.py script for details
 //
 bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
-    #ifdef VERBOSE_MODE
-    fprintf(stderr, "%s: loading model from '%s'\n", __func__, fname.c_str());
-    #endif
-
     auto & model = wctx.model;
     auto & vocab = wctx.vocab;
 
@@ -797,9 +793,6 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
     // load weights
     {
         int n_loaded = 0;
-        #ifdef VERBOSE_MODE
-        size_t total_size = 0;
-        #endif
 
         while (true) {
             int32_t n_dims;
@@ -2086,15 +2079,6 @@ whisper_token whisper_token_transcribe() {
 
 void whisper_print_timings(struct whisper_context * ctx) {
     const int64_t t_end_us = ggml_time_us();
-
-    #ifdef VERBOSE_MODE
-    fprintf(stderr, "\n");
-    fprintf(stderr, "%s:     load time = %8.2f ms\n", __func__, ctx->t_load_us/1000.0f);
-    fprintf(stderr, "%s:      mel time = %8.2f ms\n", __func__, ctx->t_mel_us/1000.0f);
-    fprintf(stderr, "%s:   sample time = %8.2f ms\n", __func__, ctx->t_sample_us/1000.0f);
-    fprintf(stderr, "%s:   encode time = %8.2f ms / %.2f ms per layer\n", __func__, ctx->t_encode_us/1000.0f, ctx->t_encode_us/1000.0f/ctx->model.hparams.n_audio_layer);
-    fprintf(stderr, "%s:   decode time = %8.2f ms / %.2f ms per layer\n", __func__, ctx->t_decode_us/1000.0f, ctx->t_decode_us/1000.0f/ctx->model.hparams.n_text_layer);
-    #endif
     fprintf(stderr, "%s:    total time = %8.2f ms\n", __func__, (t_end_us - ctx->t_start_us)/1000.0f);
 }
 

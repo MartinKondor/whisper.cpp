@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-//#define VERBOSE_MODE 1
-
 #ifdef WHISPER_SHARED
 #    ifdef _WIN32
 #        ifdef WHISPER_BUILD

@@ -8,6 +8,8 @@
 ## Setup (run first and once)
 
 1. Have `ffmpeg` installed on the computer.
+2. Install asio: `brew install asio`
+3. Install crow: `sh install_crow.sh`
 
 ## To serve as an API
 
@@ -28,6 +30,11 @@ Run:
 `sh test.sh`
 
 To compile and test the project with a sample file.
+
+## Features
+
+1. You can add any file type of audio files, everyhing will be converted to `.wav`.
+2. You can add other than 16 bit audio files, everything will be converted with `ffmpeg`.
 
 ------------------------------------------------
 
