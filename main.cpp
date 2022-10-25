@@ -148,7 +148,7 @@ int main(int argc, char ** argv) {
     struct whisper_context * ctx = whisper_init(params.model.c_str());
 
     for (int f = 0; f < (int) params.fname_inp.size(); ++f) {
-        const auto fname_inp = params.fname_inp[f];
+        auto fname_inp = params.fname_inp[f];
 
         // WAV input
         std::vector<float> pcmf32;
@@ -166,8 +166,15 @@ int main(int argc, char ** argv) {
             }
 
             if (wav.sampleRate != WHISPER_SAMPLE_RATE) {
-                fprintf(stderr, "%s: WAV file '%s' must be 16 kHz\n", argv[0], fname_inp.c_str());
-                return 5;
+                fprintf(stderr, "%s: WAV file '%s' must be 16 kHz\nAttempting auto conversion with ffmpeg...\n", argv[0], fname_inp.c_str());
+                
+                char ffmpeg_args[120];
+                std::string ffmpeg_output_file_name = "output.wav";
+                sprintf(ffmpeg_args, "ffmpeg -loglevel panic -y -i %s -ar 16000 -ac 1 %s", fname_inp.c_str(), ffmpeg_output_file_name.c_str());
+                system(ffmpeg_args);
+                fname_inp = ffmpeg_output_file_name;
+        
+                //return 5;
             }
 
             if (wav.bitsPerSample != 16) {
@@ -194,27 +201,6 @@ int main(int argc, char ** argv) {
                 }
             }
         }
-
-        // print some info about the processing
-        #ifdef VERBOSE_MODE
-        {
-            fprintf(stderr, "\n");
-            if (!whisper_is_multilingual(ctx)) {
-                if (params.language != "en" || params.translate) {
-                    params.language = "en";
-                    params.translate = false;
-                    fprintf(stderr, "%s: WARNING: model is not multilingual, ignoring language and translation options\n", __func__);
-                }
-            }
-            fprintf(stderr, "%s: processing '%s' (%d samples, %.1f sec), %d threads, lang = %s, task = %s, timestamps = %d ...\n",
-                    __func__, fname_inp.c_str(), int(pcmf32.size()), float(pcmf32.size())/WHISPER_SAMPLE_RATE, params.n_threads,
-                    params.language.c_str(),
-                    params.translate ? "translate" : "transcribe",
-                    params.no_timestamps ? 0 : 1);
-
-            fprintf(stderr, "\n");
-        }
-        #endif
 
         // run the inference
         {
@@ -326,7 +312,11 @@ int main(int argc, char ** argv) {
         }
     }
 
-    whisper_print_timings(ctx);
+    
+    if (params.verbose) {
+        whisper_print_timings(ctx);
+    }
+    
     whisper_free(ctx);
     return 0;
 }

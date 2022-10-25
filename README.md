@@ -7,7 +7,7 @@
 
 ## Setup (run first and once)
 
-_TODO_
+1. Have `ffmpeg` installed on the computer.
 
 ## To serve as an API
 
@@ -20,6 +20,14 @@ _TODO_
 ## Example usage
 
 _TODO_
+
+## Testing
+
+Run:
+
+`sh test.sh`
+
+To compile and test the project with a sample file.
 
 ------------------------------------------------
 

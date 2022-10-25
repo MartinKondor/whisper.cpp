@@ -1,3 +1,3 @@
 #!/bin/bash
 make
-./main samples/jfk.wav
+./main samples/tinb.wav
