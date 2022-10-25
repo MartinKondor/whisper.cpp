@@ -500,12 +500,6 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
         int32_t n_vocab = 0;
         fin.read((char *) &n_vocab, sizeof(n_vocab));
 
-        //if (n_vocab != model.hparams.n_vocab) {
-        //    fprintf(stderr, "%s: invalid model file '%s' (bad vocab size %d != %d)\n",
-        //            __func__, fname.c_str(), n_vocab, model.hparams.n_vocab);
-        //    return false;
-        //}
-
         std::string word;
         for (int i = 0; i < n_vocab; i++) {
             uint32_t len;
@@ -516,8 +510,6 @@ bool whisper_model_load(const std::string & fname, whisper_context & wctx) {
 
             vocab.token_to_id[word] = i;
             vocab.id_to_token[i] = word;
-
-            //printf("%s: vocab[%d] = '%s'\n", __func__, i, word.c_str());
         }
 
         vocab.n_vocab = model.hparams.n_vocab;

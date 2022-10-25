@@ -83,12 +83,14 @@ def run_whisper(
             }
 
     # TODO: Check before conversion
+    """
     input_file_name = convert_to_16bit(input_file_name)
     if not os.path.exists(input_file_name):
         return {
             "status": 0,
             "msg": "ffmpeg error"
         }
+    """
 
     # Startup whisper
     output = run_process(WHISPER_BIN + input_file_name)
