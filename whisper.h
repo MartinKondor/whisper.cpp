@@ -137,7 +137,7 @@ extern "C" {
     // whisper_sample_best() returns the token with the highest probability
     // whisper_sample_timestamp() returns the most probable timestamp token
     WHISPER_API whisper_token_data whisper_sample_best(struct whisper_context * ctx);
-    WHISPER_API whisper_token_data whisper_sample_timestamp(struct whisper_context * ctx, bool is_initial);
+    WHISPER_API whisper_token whisper_sample_timestamp(struct whisper_context * ctx);
 
     // Return the id of the specified language, returns -1 if not found
     WHISPER_API int whisper_lang_id(const char * lang);
@@ -245,6 +245,7 @@ extern "C" {
     };
 
     WHISPER_API struct whisper_full_params whisper_full_default_params(enum whisper_sampling_strategy strategy);
+    WHISPER_API struct whisper_full_params _whisper_full_default_params(enum whisper_sampling_strategy strategy, const char* language);
 
     // Run the entire model: PCM -> log mel spectrogram -> encoder -> decoder -> text
     // Uses the specified decoding strategy to obtain the text.

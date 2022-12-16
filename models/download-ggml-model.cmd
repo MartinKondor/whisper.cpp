@@ -2,13 +2,12 @@
 
 pushd %~dp0
 set models_path=%CD%
-for %%d in (%~dp0..) do set root_path=%%~fd
 popd
 
 set argc=0
 for %%x in (%*) do set /A argc+=1
 
-set models=tiny.en tiny base.en base small.en small medium.en medium large-v1 large
+set models=tiny.en tiny base.en base small.en small medium.en medium large
 
 if %argc% neq 1 (
   echo.
@@ -40,7 +39,7 @@ if exist "ggml-%model%.bin" (
   goto :eof
 )
 
-PowerShell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri https://huggingface.co/datasets/ggerganov/whisper.cpp/raw/main/ggml-%model%.bin -OutFile ggml-%model%.bin"
+PowerShell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri https://ggml.ggerganov.com/ggml-model-whisper-%model%.bin -OutFile ggml-%model%.bin"
 
 if %ERRORLEVEL% neq 0 (
   echo Failed to download ggml model %model%
@@ -48,9 +47,9 @@ if %ERRORLEVEL% neq 0 (
   goto :eof
 )
 
-echo Done! Model %model% saved in %root_path%\models\ggml-%model%.bin
+echo Done! Model %model% saved in %models_path%\models\ggml-%model%.bin
 echo You can now use it like this:
-echo main.exe -m %root_path%\models\ggml-%model%.bin -f %root_path%\samples\jfk.wav
+echo main.exe -m %models_path%\models\ggml-%model%.bin -f %models_path%\samples\jfk.wav
 
 goto :eof
 
